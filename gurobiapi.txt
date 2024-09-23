@@ -1,0 +1,7 @@
+import Pkg
+Pkg.add("Gurobi_jll")
+import Gurobi_jll
+#Replace the contents xxxxx with your actual key
+key = "4c53e4cd-ca92-4a55-8d08-737065b61bfd"
+keypc = "cc7d2b8a-634f-4f1a-9bf3-a761f48b0ed2"
+run(`$(Gurobi_jll.grbgetkey()) $keypc`)
