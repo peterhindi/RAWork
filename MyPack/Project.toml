@@ -1,0 +1,10 @@
+name = "MyPack"
+uuid = "875c7a31-7d16-4add-9c7c-980b198978d8"
+authors = ["peterhindi "]
+version = "0.1.0"
+
+[deps]
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+
+[compat]
+StatsBase = "0.34.4"
