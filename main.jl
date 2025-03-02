@@ -34,22 +34,6 @@ function run_model()
     # matrix = similarityfactor(pricesdf)
 
      #TSP_Pairs_Trade(matrix, ask_price_df, bid_price_df,10)
-
-     #pricesdf = []
-    # for dataframe in twoddf
-      #    push!(pricesdf, dataframe[:, "weighted_avg_price"])
-     #end
-
-     #bid_price_df = [[last(btcdf_trimmed[!,"best_bid_price"])] [last(ethdf_trimmed[!,"best_bid_price"])] [last(ltcdf_trimmed[!,"best_bid_price"])] [last(dgcdf_trimmed[!,"best_bid_price"])]]
-     #ask_price_df = [[last(btcdf_trimmed[!,"best_ask_price"])] [last(ethdf_trimmed[!,"best_ask_price"])] [last(ltcdf_trimmed[!,"best_ask_price"])] [last(dgcdf_trimmed[!,"best_ask_price"])]]
-
-    # filter(row -> row."transaction_time" > 1722469999950, dgcdf_trimmed)
-
-     #1722469999950
-
-     #filter(row -> row."transaction_time" > 1722469999950, dgcdf_trimmed)
-
-     #display(TSP_Pairs_Trade)
 end
 
 
