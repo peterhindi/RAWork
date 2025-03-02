@@ -27,14 +27,41 @@ dgcdf_trimmed[!, "weighted_avg_price"] = ((dgcdf_trimmed[!,"best_ask_qty"].*dgcd
 
 twoddf = [[btcdf_trimmed] [ethdf_trimmed] [ltcdf_trimmed] [dgcdf_trimmed]]
 
-pricesdf = []
-for dataframe in twoddf
-     push!(pricesdf, dataframe[:, "weighted_avg_price"])
-end
+#last(twoddf[1][!,"best_bid_price"])
 
-bid_price_df = [[last(btcdf_trimmed[!,"best_bid_price"])] [last(ethdf_trimmed[!,"best_bid_price"])] [last(ltcdf_trimmed[!,"best_bid_price"])] [last(dgcdf_trimmed[!,"best_bid_price"])]]
-ask_price_df = [[last(btcdf_trimmed[!,"best_ask_price"])] [last(ethdf_trimmed[!,"best_ask_price"])] [last(ltcdf_trimmed[!,"best_ask_price"])] [last(dgcdf_trimmed[!,"best_ask_price"])]]
+#pricesdf = []
+#for dataframe in twoddf
+#     push!(pricesdf, dataframe[:, "weighted_avg_price"])
+#end
 
-filter(row -> row."transaction_time" > 1722469999950, dgcdf_trimmed)
+#bid_price_df = [[last(btcdf_trimmed[!,"best_bid_price"])] [last(ethdf_trimmed[!,"best_bid_price"])] [last(ltcdf_trimmed[!,"best_bid_price"])] [last(dgcdf_trimmed[!,"best_bid_price"])]]
+#ask_price_df = [[last(btcdf_trimmed[!,"best_ask_price"])] [last(ethdf_trimmed[!,"best_ask_price"])] [last(ltcdf_trimmed[!,"best_ask_price"])] [last(dgcdf_trimmed[!,"best_ask_price"])]]
 
-1722469999950
+#bid_price_df
+
+#filter(row -> row."transaction_time" > 1722469999950, dgcdf_trimmed)
+
+#level_2_df = []
+#level_3_df = []
+#bid_price_df1 = []
+#ask_price_df1 = []
+#run_index = 0
+
+#for df in twoddf
+#     push!(level_2_df, filter(row -> row."transaction_time" < 17224699999509, df))
+#end
+
+#for df2 in level_2_df
+#     run_index += 1
+#     push!(level_3_df, df2[:, "weighted_avg_price"])
+#     push!(bid_price_df1, last(df2[!, "best_bid_price"]))
+#     push!(ask_price_df1, last(df2[!, "ask_bid_price"]))
+#end
+
+#level_3_df
+
+#bid_price_df1[4]
+
+#bid_price_df1
+
+#1722469999950
