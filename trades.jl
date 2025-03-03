@@ -4,11 +4,16 @@ using Pkg, CSV, DataFrames, Statistics, Plots, Ipopt, Combinatorics, Distances, 
 
 struct Modelrun
      solution
+     buy_array
+     sell_array
+     function Modelrun(solution)
+          new(solution, [], [])
+     end
 end
 
 function trades(model::Modelrun)
-     sell_array = []
-     buy_array = []
+     sell_array
+     buy_array
      edge_list = collect(edges(DiGraph(model.solution)))
      for edge in edge_list
           if src(edge) == 5 || dst(edge) == 5
@@ -27,3 +32,4 @@ TSP_output = TSP_Pairs_Trade(similarity, ask_price_df, bid_price_df,10)
 new_model = Modelrun(TSP_output)
 
 hi, bye = trades(new_model)
+
