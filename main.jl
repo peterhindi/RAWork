@@ -7,6 +7,7 @@ include("trades.jl")
 
 function run_model()
      millisecond_starter = 1722470000001 # 50 less than the limited dataset = 1722469999950
+     model_time_delta = 25
      millisecond_tracker = millisecond_starter
      print("START OF MODEL RUNS")
      while (millisecond_tracker < millisecond_starter+101) #replace number with maximum transaction_time in entire period
@@ -32,20 +33,23 @@ function run_model()
           
           TSP_solution = TSP_Pairs_Trade(similarity_matrix, ask_price_df, bid_price_df,3)
 
-          Model_trades = Modelrun(TSP_solution)
+          Model_trades = Modelrun(TSP_solution, millisecond_tracker)
 
-          sell_array,buy_array, pair = trades(Model_trades)
+          sell_array,buy_array,pair = trades(Model_trades)
+
           
+
+
           display(TSP_solution)
 
           println("these are the trades")
           println(sell_array)
           println(buy_array)
           println(pair)
+          println(Model_trades.time_executed)
           
-          millisecond_tracker += 25
+          millisecond_tracker += model_time_delta
      end
 end
 
 run_model()
-

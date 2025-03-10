@@ -2,12 +2,15 @@ using Pkg, CSV, DataFrames, Statistics, Plots, Ipopt, Combinatorics, Distances, 
 
 @nbinclude("TSP Pairs Trade Parameterized.ipynb")
 
-struct Modelrun
+mutable struct Modelrun
      solution
+     time_executed
      buy_array
      sell_array
-     function Modelrun(solution)
-          new(solution, [], [])
+     pair
+
+     function Modelrun(solution, time_executed)
+          new(solution, time_executed, [], [], [])
      end
 end
 
@@ -15,6 +18,8 @@ function trades(model::Modelrun)
      solution = model.solution
      sell_array = model.sell_array
      buy_array = model.buy_array
+     pair = model.pair
+
      
      #collect list of edges to interpret long and short positions
      edge_list = collect(edges(Graphs.DiGraph(solution)))
@@ -36,9 +41,12 @@ function trades(model::Modelrun)
                push!(buy_array, dst(edge))
           end
      end
+     model.sell_array = sell_array
+     model.buy_array = buy_array
+     model.pair = pair
+
      return sell_array, buy_array, pair
 end
-
 
 
 #TSP_output = TSP_Pairs_Trade(similarity, ask_price_df, bid_price_df,10)
@@ -46,4 +54,3 @@ end
 #new_model = Modelrun(TSP_output)
 
 #hi, bye = trades(new_model)
-
