@@ -6,6 +6,9 @@ include("trades.jl")
 @nbinclude("Similarity Factor & Bid-Ask Prices Parameterized.ipynb")
 
 function run_model()
+
+     account = Account(10000)
+
      millisecond_starter = 1722470000001 # 50 less than the limited dataset = 1722469999950
      model_time_delta = 25
      millisecond_tracker = millisecond_starter
@@ -37,8 +40,10 @@ function run_model()
 
           sell_array,buy_array,pair = trades(Model_trades)
 
+          open_trade(account, Model_trades)
+          close_trade(account, Model_trades)
           
-
+          update_balance(account, millisecond_tracker, model_time_delta)
 
           display(TSP_solution)
 
@@ -47,7 +52,8 @@ function run_model()
           println(buy_array)
           println(pair)
           println(Model_trades.time_executed)
-          
+          println("this is the balance")
+          println(account.balance)
           millisecond_tracker += model_time_delta
      end
 end
