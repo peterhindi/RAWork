@@ -1,4 +1,5 @@
-using Pkg, CSV, DataFrames
+using Pkg, CSV, DataFrames, DynamicAxisWarping, Distances, Plots
+
 
 #Read in asset-level prices
 btcdf = CSV.read("btc_book-2024-08-01-trimmed.csv", DataFrame)
@@ -26,3 +27,30 @@ dgcdf_trimmed[!, "total_quantity"] = dgcdf_trimmed[!,"best_ask_qty"]+ dgcdf_trim
 dgcdf_trimmed[!, "weighted_avg_price"] = ((dgcdf_trimmed[!,"best_ask_qty"].*dgcdf_trimmed[!,"best_ask_price"]) + (dgcdf_trimmed[!,"best_bid_qty"].*dgcdf_trimmed[!,"best_bid_price"]))./dgcdf_trimmed[!, "total_quantity"]
 
 twoddf = [[btcdf_trimmed] [ethdf_trimmed] [ltcdf_trimmed] [dgcdf_trimmed]]
+
+for df in twoddf
+     #convert milliseconds to days
+     transform!(df, :transaction_time => ByRow(x -> floor(Int, x / 86400000)) => :day_group)
+     #group dataframe by day
+     gdf = groupby(df, :day_group)
+     #within each group, divide the price by the first price (being done daily now)
+     transform!(gdf, :weighted_avg_price => (prices -> prices ./ first(prices)) => :price_index)
+end
+
+#b1= Array(select(twoddf[1], "transaction_time"))[:,1]
+
+#b2 = Array(select(twoddf[2], "transaction_time"))[:,1]
+
+#a1= Array(select(twoddf[1], "weighted_avg_price"))[:,1]
+
+#a2 = Array(select(twoddf[2], "weighted_avg_price"))[:,1]
+
+#vector1 = hcat(a1, b1)
+#vector2 = hcat(a2, b2)
+
+#display(vector1)
+
+#dtw(a1, a2)
+#dtw(vector1, vector2)
+#dtwplot(a1, a2, SqEuclidean(), transportcost = 1)
+#dtwplot(vector1, vector2, SqEuclidean(), transportcost = 1)
