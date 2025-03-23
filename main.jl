@@ -10,10 +10,10 @@ function run_model()
      account = Account(10000)
 
      #set starting time. May look to adjust for data warm-up
-     millisecond_starter = 1722470000001 # 50 less than the limited dataset = 1722469999950
+     millisecond_starter = 1684237787400 # 50 less than the limited dataset = 1722469999950
      
      #set time between model iterations
-     model_time_delta = 25
+     model_time_delta = 20
      
      millisecond_tracker = millisecond_starter
 
