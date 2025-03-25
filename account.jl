@@ -10,10 +10,26 @@ mutable struct Account
 
 end
 
-function open_trade(account::Account,  model::Modelrun)
+function open_trade(account::Account,  model::Modelrun, window_df)
      trades = account.trades
+     buy_position_size = model.buy_position_size
+     sell_position_size = model.sell_position_size
      new_trades = push!(trades, model)
      account.trades = new_trades
+
+     for asset in model.buy_array
+          trade_size =  account.trade_size / (last(window_df[asset][!, "best_ask_price"]))
+          push!(buy_position_size, trade_size)
+     end
+
+     for asset in model.sell_array
+          trade_size = account.trade_size / (last(window_df[asset][!, "best_ask_price"]))
+          push!(sell_position_size, trade_size)
+     end
+
+     model.buy_position_size = buy_position_size
+     model.sell_position_size = sell_position_size
+
 end
 
 function close_trade(account::Account, model::Modelrun)
@@ -29,19 +45,19 @@ function update_balance(account::Account, window_df)
           println("No returns data in the timeline specified. Maintaining existing balance and moving to next iteration.")
      else
           for trade in account.trades
-               for asset in trade.buy_array
-                    balance += (last(window_df[asset][!, "best_bid_price"]) - first((window_df[asset][!, "best_ask_price"])))
+               for (i, asset) in enumerate(trade.buy_array)
+                    balance += (last(window_df[asset][!, "best_bid_price"]) - first((window_df[asset][!, "best_ask_price"])))*trade.buy_position_size[i]
                end
 
-               for asset in trade.sell_array
-                    balance += (first(window_df[asset][!, "best_bid_price"]) - last((window_df[asset][!, "best_ask_price"])))
+               for (i, asset) in enumerate(trade.sell_array)
+                    balance += (first(window_df[asset][!, "best_bid_price"]) - last((window_df[asset][!, "best_ask_price"]))) * trade.sell_position_size[i]
                end
           end
      end
      account.balance = balance
 end
 
-function trade_closing_logic(account::Account, window_df)
+function trade_closing_logic_spread(account::Account, window_df)
 
      if isempty(account.trades)
           println("No trades opened at the current time period. No closings available")
@@ -53,9 +69,7 @@ function trade_closing_logic(account::Account, window_df)
                else
                     sell_asset = trade.pair[1]
                     buy_asset = trade.pair[2]
-                    println(sell_asset)
-                    println(buy_asset)
-                    display(window_df[1])
+
                     #calculate the initial spread
                     initial_spread = first(window_df[sell_asset][!, "best_bid_price"]) - first(window_df[buy_asset][!, "best_ask_price"])
                     
@@ -66,6 +80,20 @@ function trade_closing_logic(account::Account, window_df)
                     if current_spread < initial_spread
                          close_trade(account, trade)
                     end
+               end
+          end
+     end
+end
+
+function trade_closing_logic_daily(account::Account, millisecond_tracker)
+     if isempty(account.trades)
+          println("No trades opened at the current time period. No closings available")
+     else
+          for trade in account.trades
+               if isempty(trade.pair) || all(isempty, window_df)
+                    println("Trade has not been instantiated with a pair, or the dataframe is empty")
+               elseif trade.time_executed + 86400000 < millisecond_tracker
+                    close_trade(account,trade)
                end
           end
      end

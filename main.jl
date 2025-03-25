@@ -4,16 +4,18 @@ include("data_read.jl")
 include("trades.jl")
 @nbinclude("TSP Pairs Trade Parameterized.ipynb")
 @nbinclude("Similarity Factor & Bid-Ask Prices Parameterized.ipynb")
+include("account.jl")
+
 
 function run_model()
 
      account = Account(10000)
 
-     #set starting time. May look to adjust for data warm-up
-     millisecond_starter = 1684237787400 # 50 less than the limited dataset = 1722469999950
-     
      #set time between model iterations
-     model_time_delta = 20
+     model_time_delta = 1000
+
+     #set starting time. May look to adjust for data warm-up
+     millisecond_starter = 86400000 # 50 less than the limited dataset = 1722469999950
      
      millisecond_tracker = millisecond_starter
 
@@ -22,7 +24,7 @@ function run_model()
 
      print("START OF MODEL RUNS")
      
-     while (millisecond_tracker < millisecond_starter+101) #replace number with maximum transaction_time in entire period
+     while (millisecond_tracker < 86400000) #replace number with maximum transaction_time in entire period
 
           #initialize empty dataframes for data entry and index for column addition
           level_2_df = []
@@ -36,28 +38,32 @@ function run_model()
                push!(level_2_df, filter(row -> row.transaction_time < millisecond_tracker, df))
           end
 
-          display(level_2_df[1])
           for df2 in level_2_df
                push!(bid_price_df, last(df2[!, "best_bid_price"]))
                push!(ask_price_df, last(df2[!, "best_ask_price"]))
                push!(iteration_window_df, filter(row -> row.transaction_time >= millisecond_tracker - model_time_delta, df2))
           end
 
-          display(iteration_window_df[1])
+          print("here first")
 
           #close existing positions before adding new one
-          trade_closing_logic(account, iteration_window_df)
+          #trade_closing_logic_spread(account, iteration_window_df)
 
+          trade_closing_logic_daily(account, millisecond_tracker)
 
           similarity_matrix =  similarityfactor(level_2_df)
           
+          print("here second")
+
           TSP_solution = TSP_Pairs_Trade(similarity_matrix, ask_price_df, bid_price_df,3)
+
+          print("here third")
 
           Model_trades = Modelrun(TSP_solution, millisecond_tracker)
 
           sell_array,buy_array,pair = trades(Model_trades)
 
-          open_trade(account, Model_trades)
+          open_trade(account, Model_trades, iteration_window_df)
 
           update_balance(account, iteration_window_df)
 
@@ -71,6 +77,8 @@ function run_model()
           println("this is the balance")
           println(account.balance)
           millisecond_tracker += model_time_delta
+          
+          print("here fourth")
      end
 end
 

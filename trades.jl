@@ -8,9 +8,11 @@ mutable struct Modelrun
      buy_array
      sell_array
      pair
+     buy_position_size
+     sell_position_size
 
      function Modelrun(solution, time_executed)
-          new(solution, time_executed, [], [], [])
+          new(solution, time_executed, [], [], [],[],[])
      end
 end
 
