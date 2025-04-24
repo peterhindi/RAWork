@@ -9,9 +9,12 @@ const env = Gurobi.Env()
 
 #Compute forbidden subtours and return list of edges to forbid. Parameters are a list of components (in this case, cycles) for each callback solution, and a collection of callback edges.
 function forbidden_tours(componentlist, cb_edges,null_index)
+    print("null index is $null_index")
     #Initialize empty container to add subtour components
     component_container = []
     for component in componentlist
+        println("below is component")
+        display(component)
         #Indicator variable for component that includes null node; if null node is present, do not forbid. Otherwise, forbid the path.
         includes_null = 0
         #if the length of the component is one (if there is no edge/cycle), do not forbid
@@ -33,6 +36,8 @@ function forbidden_tours(componentlist, cb_edges,null_index)
         if includes_null != 1
             push!(component_container, component)
         end
+        print("includes null value is $includes_null")
+        display(componentlist)
     end
     
     #Initialize empty container to store forbidden edges in order of their component.
@@ -75,7 +80,7 @@ function tabu_list_push(soln_matrix,tabu_list,tabu_length)
     
     col_num = findall(dummy_col->dummy_col==1, dummy_col)
     row_num = findall(dummy_row->dummy_row==1, dummy_row)
-
+    display(soln_matrix)
     #revolving index
     if (tabu_index <= tabu_length)
         tabu_list[tabu_index] = [col_num[1],row_num[1]]
@@ -100,15 +105,15 @@ function QUBO_Pairs_Trade(similarity, ask_price_df, bid_price_df,tabu_length)
     
     #Set hyperparameters
     mc = 1
-    mp = 100
+    mp = 100000000
 
     #Initialize our model:
     pairs_trading_model = Model(Gurobi.Optimizer)
 
     @variable(pairs_trading_model, x[i= 1:(index_max+1), j=1:(index_max+1)], Bin)
-    @objective(pairs_trading_model, Min, costfunct(x, similarity, ask_price_df, bid_price_df)*mc + penaltyfunction(x)*mp)
+    @objective(pairs_trading_model, Min, costfunct(x, similarity, ask_price_df, bid_price_df)*mc + penaltyfunction(x, tabu_list)*mp)
 
-    @constraint(pairs_trading_model, tabulist[i in 1:size(tabu_list)[1]], x[(index_max+1),tabu_list[i][1]] + x[tabu_list[i][2],(index_max+1)] <= 1)
+    #@constraint(pairs_trading_model, tabulist[i in 1:size(tabu_list)[1]], x[(index_max+1),tabu_list[i][1]] + x[tabu_list[i][2],(index_max+1)] <= 1)
 
     #Lazy constraint to eliminate subtours and short cycles of length two from the solution when they arise.
     function subtour_elimination_callback(cb_data)
@@ -157,6 +162,9 @@ function QUBO_Pairs_Trade(similarity, ask_price_df, bid_price_df,tabu_length)
 
     #Build solution matrix
     soln_matrix = round.(Int, value.(x))
+    println("this is the soln_matrix below")
+    display(soln_matrix)
+    println("done printing soln matrix")
 
     #Add solution to tabu list
     tabu_list = tabu_list_push(soln_matrix,tabu_list,tabu_length)
